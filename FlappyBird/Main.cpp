@@ -1,91 +1,72 @@
-#include <raylib.h>
-#include <format>
+#include "Game.h"
 
-struct Sprite
-{
-	Image Image;
-	Rectangle Rect;
-};
-struct Object
-{
-	Rectangle Body;
-	Vector2 Velocity;
-	Sprite Sprite;
-};
-struct Bird
-{
-	Object Data;
-	bool IsFalling;
-	bool IsHit;
-};
+constexpr u32 SCRN_W = 256 * 2;
+constexpr u32 SCRN_H = 256 * 2;
 
-constexpr float GRAVITY_SCALE = 0.5f;
+constexpr float GRAVITY_SCALE = 0.05f;
 constexpr float GRAVITY = 9.8f * GRAVITY_SCALE;
-constexpr float JUMP_POWER = -5.f;
+
+constexpr float JUMP_POWER = 10.0f;
 
 int main()
 {
-	// Create window.
-	Vector2 windowSize = { 500, 700 };
-
-	InitWindow(windowSize.x, windowSize.y, "FlappyBird");
+	// Create window
+	InitWindow(SCRN_W, SCRN_H, "FlappyBird");
+	InitAudioDevice();
 	SetTargetFPS(60);
 
-	// Create objects.
-	Bird bird{};
-	bird.IsFalling = true;
-	bird.Data.Sprite.Image = LoadImage("Assets/Player/bird1.png");
-	bird.Data.Sprite.Rect = { 0, 0, 16, 16 };
-	bird.Data.Body = { 50, windowSize.y / 2.f - bird.Data.Sprite.Rect.height, bird.Data.Sprite.Rect.width, bird.Data.Sprite.Rect.height };
+	// Load sounds
+	auto jumpSound = LoadSound("Assets/sfx-press.wav");
+	auto scoreSound = LoadSound("Assets/sfx-reached.wav");
+	auto deadSound = LoadSound("Assets/sfx-hit.wav");
 
-	// Ready to render textures.
-	auto birdTex = LoadTextureFromImage(bird.Data.Sprite.Image);
-	UnloadImage(bird.Data.Sprite.Image);
+	// Create objects.
+	Object bird{};
+	bird.Sprite.Image = LoadImage("Assets/Player/bird3.png");
+	bird.Sprite.Data = { 1 * 16, 0, 16, 16 };
+	bird.Body = { 0, 0, bird.Sprite.Data.width * 3, bird.Sprite.Data.height * 3 };
+
+	// Load bird texture
+	Texture2D birdTex;
+	bird.Sprite.ToTexture(birdTex);
 
 	while (!WindowShouldClose())
 	{
-		bird.Data.Velocity = { 0.f, 0.f };
-
-		if (bird.Data.Velocity.y == 0.f)
-			bird.IsFalling = true;
-		// Key update
-		if (IsKeyDown(KEY_SPACE))
+		// Out of bounds
+		if (bird.Body.y >= SCRN_H - bird.Body.height)
 		{
-			bird.IsFalling = false;
-			bird.Data.Velocity.y += JUMP_POWER;
+			bird.Body.y = SCRN_H - bird.Body.height;
+			bird.Acceleration.y = 0;
 		}
-		// Draw
+		if (IsKeyPressed(KEY_SPACE))
+		{
+			bird.Velocity.y = -JUMP_POWER;
+			PlaySound(jumpSound);
+		}
 		BeginDrawing();
 		{
-			ClearBackground(RAYWHITE);
-			DrawFPS(0, 0);
+			ClearBackground(BLUE);
 
-			Rectangle dest = { bird.Data.Body.x, bird.Data.Body.y, bird.Data.Body.width * 3, bird.Data.Body.height * 3 };
-			float rotate = 0.f;
-
-			if (bird.IsFalling)
-				rotate = 45.f;
-			else
-				rotate = -45.f;
-			DrawTexturePro(birdTex, bird.Data.Sprite.Rect, dest, { dest.width / 2, dest.height / 2 }, rotate, RAYWHITE);
-			DrawText(std::format("{}", bird.Data.Velocity.y).c_str(), 0, 50, 50, BLACK);
+			DrawTexturePro(birdTex, bird.Sprite.Data, bird.Body, { 0, 0 }, 0.f, WHITE);
+			// DrawRectangle(bird.Body.x, bird.Body.y, bird.Body.width, bird.Body.height, { 0, 0, 0, 100 });
 		}
 		EndDrawing();
 
-		// Update
-		bird.Data.Body.x += bird.Data.Velocity.x;
-		bird.Data.Body.y += bird.Data.Velocity.y;
+		bird.Update();
 
-		bird.Data.Body.y += GRAVITY;
+		bird.Acceleration.y = GRAVITY;
 	}
 	// Cleanup
+	UnloadSound(jumpSound);
+	UnloadSound(scoreSound);
+	UnloadSound(deadSound);
+
+	UnloadTexture(birdTex);
+
 	CloseWindow();
 }
 // TODOS
 // 1. Draw score.
 // 2. Draw obstacles.
-// 3. Make bird rotate.
-// 4. Get key input and make bird jump.
 // 5. Make hit process.
-// 6. Add background.
 // 7. Add animation to bird.

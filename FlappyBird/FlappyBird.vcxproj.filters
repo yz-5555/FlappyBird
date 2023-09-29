@@ -21,6 +21,9 @@
     <ClCompile Include="Main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Game.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\Background.png">
@@ -38,5 +41,21 @@
     <Image Include="Assets\Tiles.png">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Assets\sfx-hit.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Assets\sfx-press.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="Assets\sfx-reached.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

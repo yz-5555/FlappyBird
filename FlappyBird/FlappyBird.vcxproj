@@ -138,6 +138,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Game.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -146,6 +147,14 @@
     <Image Include="Assets\Player\bird2.png" />
     <Image Include="Assets\Player\bird3.png" />
     <Image Include="Assets\Tiles.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="Assets\sfx-hit.wav" />
+    <Media Include="Assets\sfx-press.wav" />
+    <Media Include="Assets\sfx-reached.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Game.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
