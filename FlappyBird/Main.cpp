@@ -3,10 +3,10 @@
 constexpr u32 SCRN_W = 256 * 2;
 constexpr u32 SCRN_H = 256 * 2;
 
-constexpr float GRAVITY_SCALE = 0.05f;
+constexpr float GRAVITY_SCALE = 0.1f;
 constexpr float GRAVITY = 9.8f * GRAVITY_SCALE;
 
-constexpr float JUMP_POWER = 10.0f;
+constexpr float JUMP_POWER = 15.0f;
 
 int main()
 {
@@ -18,26 +18,40 @@ int main()
 	// Load sounds
 	auto jumpSound = LoadSound("Assets/sfx-press.wav");
 	auto scoreSound = LoadSound("Assets/sfx-reached.wav");
-	auto deadSound = LoadSound("Assets/sfx-hit.wav");
+	auto deathSound = LoadSound("Assets/sfx-hit.wav");
 
 	// Create objects.
 	Object bird{};
 	bird.Sprite.Image = LoadImage("Assets/Player/bird3.png");
 	bird.Sprite.Data = { 1 * 16, 0, 16, 16 };
-	bird.Body = { 0, 0, bird.Sprite.Data.width * 3, bird.Sprite.Data.height * 3 };
+	bird.Body = { 0, SCRN_H / 2, bird.Sprite.Data.width * 3, bird.Sprite.Data.height * 3 };
+
+	Object obstacle{};
+	obstacle.Sprite.Image = LoadImage("Assets/Tiles.png");
+	obstacle.Sprite.Data = { 0, 0, 32, 80 };
+	obstacle.Body = { 0, 0, obstacle.Sprite.Data.width * 3, obstacle.Sprite.Data.height * 4 };
 
 	// Load bird texture
 	Texture2D birdTex;
 	bird.Sprite.ToTexture(birdTex);
 
+	Texture2D obstacleTex;
+	obstacle.Sprite.ToTexture(obstacleTex);
+
 	while (!WindowShouldClose())
 	{
-		// Out of bounds
-		if (bird.Body.y >= SCRN_H - bird.Body.height)
+		// Out of bounds (bottom)
+		if (B(bird.Body) >= SCRN_H)
 		{
 			bird.Body.y = SCRN_H - bird.Body.height;
 			bird.Acceleration.y = 0;
 		}
+		// Out of bounds (top)
+		else if (T(bird.Body) <= 0)
+		{
+			bird.Body.y = 0;
+		}
+		// Jump
 		if (IsKeyPressed(KEY_SPACE))
 		{
 			bird.Velocity.y = -JUMP_POWER;
@@ -48,7 +62,10 @@ int main()
 			ClearBackground(BLUE);
 
 			DrawTexturePro(birdTex, bird.Sprite.Data, bird.Body, { 0, 0 }, 0.f, WHITE);
-			// DrawRectangle(bird.Body.x, bird.Body.y, bird.Body.width, bird.Body.height, { 0, 0, 0, 100 });
+			// Draw bird's box.
+			// bird.DrawBox(GREEN);
+
+			DrawTexturePro(obstacleTex, obstacle.Sprite.Data, obstacle.Body, { 0, 0 }, 0.f, WHITE);
 		}
 		EndDrawing();
 
@@ -59,7 +76,7 @@ int main()
 	// Cleanup
 	UnloadSound(jumpSound);
 	UnloadSound(scoreSound);
-	UnloadSound(deadSound);
+	UnloadSound(deathSound);
 
 	UnloadTexture(birdTex);
 
