@@ -47,6 +47,9 @@ constexpr float B(const rect& val)
 	return val.y + val.height;
 }
 
+// Debug utils
+void DrawBox(const rect& r, Color color);
+
 struct Sprite
 {
 	Image Image;
@@ -63,8 +66,21 @@ struct Object
 
 	Sprite Sprite;
 
-	bool Visible;
-
 	void Update();
-	void DrawBox(Color color);
+};
+
+struct PipePair
+{
+	rect Body;
+	float TopY;
+	float BottomY;
+
+	vec2 Velocity;
+
+	rect SpriteData;
+
+	void Create(const rect& source, const rect& spriteData, const vec2& velocity);
+	void GenerateRandom(float gap, float screenHeight);
+	void Update();
+	void Draw(const Texture2D& tex);
 };
